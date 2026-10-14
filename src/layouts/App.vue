@@ -16,14 +16,18 @@ import Breadcrumb from '@/components/app/Breadcrumb.vue'
 <style scoped>
 .app-layout {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
+
 .main-content {
   flex: 1;
-  padding: 2rem;
-  max-width: 1440px;
-  margin: 0 auto;
   width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 </style>
