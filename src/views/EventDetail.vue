@@ -1,363 +1,245 @@
 <script setup>
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useEvents } from '@/composables/useEvents'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppCard from '@/components/ui/AppCard.vue'
+
+const route = useRoute()
+const router = useRouter()
+const { getEventById } = useEvents()
+
+const event = computed(() => getEventById(route.params.id))
 </script>
 
 <template>
   <div class="event-detail-page">
     <!-- Tombol kembali -->
-    <button type="button" class="btn-back" @click="$router.push('/browse/events')">
-      &larr; Back to Events
-    </button>
+    <button @click="$router.push('/browse/events')" class="btn-back">&larr; Back to Events</button>
 
-    <!-- Header event -->
-    <header class="detail-header">
-      <span class="event-tag">Workshop &amp; Training</span>
+    <div v-if="event">
+      <div class="detail-header">
+        <div class="header-tags">
+          <span class="event-tag">{{ event.cat }}</span>
+          <span v-if="event.done" class="status-tag status-ended">Event Finished</span>
+          <span v-else class="status-tag status-live">Open Registration</span>
+        </div>
 
-      <h1>Vue.js Mastery Workshop {{ $route.params.id }}</h1>
+        <h1>{{ event.title }}</h1>
 
-      <div class="meta-info">
-        <span class="meta-item">📅 October 12, 2026</span>
-        <span class="meta-item">📍 Tech Hub, Jakarta Pusat</span>
-        <span class="meta-item">🎟️ Quota: 150 Attendees</span>
+        <div class="meta-info">
+          <span class="meta-item">📅{{ event.date }}</span>
+          <span class="meta-item">📍{{ event.loc }}</span>
+          <span class="meta-item">👥 Quota: {{ event.quota }} Attendees</span>
+        </div>
       </div>
-    </header>
 
-    <!-- Konten utama -->
-    <div class="detail-content">
-      <section class="main-desc">
-        <h2>About This Event</h2>
+      <div class="detail-content grid-asymmetric">
+        <div class="main-desc">
+          <h2>About This Event</h2>
+          <p class="description-text">
+            {{ event.desc }}
+          </p>
+        </div>
 
-        <p>
-          Welcome to the biggest web interface development training event of the year! Gatherly is
-          collaborating with the local developer community to host a comprehensive workshop designed
-          specifically to bring together professionals, enthusiasts, and students.
-        </p>
+        <div class="sidebar">
+          <AppCard class="ticket-card sticky-pane">
+            <h3>Attendee Registration</h3>
+            <p class="price">{{ event.price }}</p>
+            <p class="ticket-desc">
+              {{
+                event.done
+                  ? 'Registration is closed as this event has ended.'
+                  : 'Secure your ticket now before quota is filled.'
+              }}
+            </p>
 
-        <p>
-          In this session, we will discuss current industry challenges, explore the implementation
-          of Single Page Applications (SPA), and practice hands-on layout system design with a focus
-          on visual hierarchy.
-        </p>
+            <AppButton
+              v-if="!event.done"
+              variant="primary"
+              class="btn-register"
+              @click="
+                alert(
+                  'Ticket registered successfully! Your digital QR ticket has been sent to your email.',
+                )
+              "
+            >
+              Register Now
+            </AppButton>
+            <AppButton v-else variant="secondary" class="btn-register btn-disabled" disabled>
+              Registration Closed
+            </AppButton>
 
-        <h2>Agenda</h2>
-
-        <ul class="agenda-list">
-          <li>
-            <strong>09:00 AM</strong>
-            <span>Registration &amp; Welcome Coffee</span>
-          </li>
-          <li>
-            <strong>10:00 AM</strong>
-            <span>Opening Keynote Speech</span>
-          </li>
-          <li>
-            <strong>11:30 AM</strong>
-            <span>Networking Session</span>
-          </li>
-          <li>
-            <strong>01:00 PM</strong>
-            <span>Closing Remarks</span>
-          </li>
-        </ul>
-      </section>
-
-      <!-- Kartu registrasi -->
-      <aside class="sidebar">
-        <AppCard class="ticket-card">
-          <h3>Attendee Registration</h3>
-
-          <p class="price">Free</p>
-
-          <p class="ticket-desc">Secure your seat now before the quota is full.</p>
-
-          <AppButton variant="primary" class="btn-register"> Register Now </AppButton>
-
-          <p class="spots">Only 12 spots left!</p>
-        </AppCard>
-      </aside>
+            <p v-if="!event.done" class="spots">Only {{ event.quota }} seats available !</p>
+          </AppCard>
+        </div>
+      </div>
+    </div>
+    <div v-else class="not-found-card">
+      <h2>404 - Event Not Found</h2>
+      <p>The event you are looking for is unavailable or has been removed by the organizer .</p>
+      <AppButton variant="primary" @click="router.push('/browse/events')">
+        Back to Event Catalog
+      </AppButton>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* ===== HALAMAN UTAMA ===== */
-.event-detail-page {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-bottom: 3rem;
-  color: var(--text-main, #1c1948);
-}
-
-/* ===== TOMBOL KEMBALI ===== */
 .btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 0;
-
-  background: transparent;
+  background: none;
   border: none;
-  color: var(--text-muted, #666780);
-
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-
-  transition: color 0.2s ease;
+  margin-bottom: var(--space-6);
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .btn-back:hover {
-  color: var(--primary, #6644ff);
+  color: var(--primary);
 }
 
-/* ===== HEADER EVENT ===== */
 .detail-header {
-  margin-bottom: 2rem;
-  padding: 2.5rem;
-
-  background: var(--bg-light, #f8f7ff);
-  border: 1px solid var(--border-color, #e2e2eb);
-  border-radius: 16px;
+  background: var(--bg-light);
+  border-radius: var(--space-4);
+  border: 1px solid var(--border-color);
+  padding: var(--space-12) var(--space-8);
+  margin-bottom: var(--space-8);
+}
+.header-tags {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-4);
 }
 
 .event-tag {
-  display: inline-block;
-  margin-bottom: 1rem;
-  padding: 0.4rem 0.85rem;
-
   background: rgba(102, 68, 255, 0.1);
-  border-radius: 999px;
-  color: var(--primary, #6644ff);
+  color: var(--primary);
+  padding: var(--space-1) var(--space-4);
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
 
+.status-tag {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 50px;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.detail-header h1 {
-  margin: 0 0 1.25rem;
-  color: var(--text-main, #1c1948);
+.status-live {
+  background: rgba(46, 204, 113, 0.15);
+  color: #27ae60;
+}
 
-  font-size: clamp(1.8rem, 4vw, 2.7rem);
-  font-weight: 800;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
+.status-ended {
+  background: rgba(108, 117, 125, 0.15);
+  color: #6c757d;
+}
+
+.detail-header h1 {
+  font-size: 2.8rem;
+  margin-bottom: var(--space-4);
+  line-height: 1.2;
+  color: var(--text-main);
 }
 
 .meta-info {
   display: flex;
+  gap: var(--space-6);
   flex-wrap: wrap;
-  gap: 0.75rem 1.5rem;
 }
-
 .meta-item {
-  color: var(--text-muted, #666780);
-  font-size: 0.9rem;
+  color: var(--text-muted);
   font-weight: 500;
+  font-size: 1.05rem;
 }
 
-/* ===== LAYOUT DUA KOLOM ===== */
-.detail-content {
+.grid-asymmetric {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  align-items: start;
-  gap: 2rem;
-}
-
-.main-desc,
-.sidebar {
-  min-width: 0;
-}
-
-/* ===== DESKRIPSI EVENT ===== */
-.main-desc {
-  padding: 0.25rem 0;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-12);
 }
 
 .main-desc h2 {
-  margin: 0 0 1rem;
-  padding-left: 0.85rem;
-
-  border-left: 4px solid var(--primary, #6644ff);
-  color: var(--text-main, #1c1948);
-
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
+  margin-bottom: var(--space-4);
+  font-size: 1.8rem;
+  border-left: 4px solid var(--primary);
+  padding-left: var(--space-2);
 }
 
-.main-desc h2:not(:first-child) {
-  margin-top: 2rem;
-}
-
-.main-desc p {
-  margin: 0 0 1.25rem;
-  color: var(--text-muted, #666780);
-
-  font-size: 0.98rem;
+.description-text {
+  color: var(--text-muted);
   line-height: 1.8;
-}
-
-/* ===== AGENDA ===== */
-.agenda-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.agenda-list li {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  padding: 1rem 0;
-
-  border-bottom: 1px solid var(--border-color, #e2e2eb);
-  color: var(--text-muted, #666780);
-
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-.agenda-list li:first-child {
-  border-top: 1px solid var(--border-color, #e2e2eb);
-}
-
-.agenda-list li strong {
-  flex: 0 0 100px;
-  color: var(--text-main, #1c1948);
-  font-weight: 700;
-}
-
-/* ===== KARTU REGISTRASI ===== */
-.sidebar {
-  width: 100%;
+  margin-bottom: var(--space-6);
+  font-size: 1.1rem;
 }
 
 .ticket-card {
-  padding: 1.75rem;
+  padding: var(--space-8);
   text-align: center;
+}
+
+.sticky-pane {
+  position: sticky;
+  top: 100px;
 }
 
 .ticket-card h3 {
-  margin: 0 0 1.25rem;
-  color: var(--text-main, #1c1948);
-
-  font-size: 1.2rem;
-  font-weight: 700;
-  line-height: 1.4;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-2);
 }
-
 .price {
-  margin: 0 0 0.5rem;
-  color: var(--primary, #6644ff);
-
   font-size: 2.8rem;
   font-weight: 800;
-  line-height: 1.2;
+  color: var(--primary);
+  margin-bottom: var(--space-2);
 }
-
 .ticket-desc {
-  margin: 0 0 1.5rem;
-  color: var(--text-muted, #666780);
-
-  font-size: 0.9rem;
-  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: var(--space-6);
+  line-height: 1.5;
 }
-
-/* AppButton tetap digunakan */
 
 .btn-register {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
-  min-height: 48px;
-  padding: 12px 20px;
-  background-color: #6644ff;
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
+}
+
+.btn-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.spots {
+  margin-top: var(--space-4);
+  color: #27ae60;
   font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.not-found-card {
   text-align: center;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(102, 68, 255, 0.2);
-  transition:
-    background-color 0.2s ease,
-    transform 0.2s ease;
+  padding: var(--space-12);
+  background: white;
+  border-radius: var(--space-4);
+  border: 1px solid var(--border-color);
 }
 
-.btn-register:hover {
-  background-color: #5232e8;
-  transform: translateY(-2px);
+.not-found-card h2 {
+  margin-bottom: var(--space-2);
+}
+.not-found-card p {
+  color: var(--text-muted);
+  margin-bottom: var(--space-6);
 }
 
-.btn-register:active {
-  transform: translateY(0);
-}
-
-.btn-register:focus-visible {
-  outline: 3px solid rgba(102, 68, 255, 0.35);
-  outline-offset: 3px;
-}
-
-/* ===== TABLET ===== */
 @media (max-width: 900px) {
-  .detail-content {
-    grid-template-columns: minmax(0, 1fr) 280px;
-    gap: 1.25rem;
-  }
-
-  .detail-header {
-    padding: 2rem;
-  }
-
-  .ticket-card {
-    padding: 1.5rem;
-  }
-}
-
-/* ===== MOBILE ===== */
-@media (max-width: 680px) {
-  .event-detail-page {
-    padding-bottom: 2rem;
-  }
-
-  .detail-header {
-    padding: 1.5rem;
-    border-radius: 12px;
-  }
-
-  .detail-header h1 {
-    font-size: 1.8rem;
-  }
-
-  .meta-info {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .detail-content {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
-  }
-
-  .main-desc h2 {
-    font-size: 1.3rem;
-  }
-
-  .agenda-list li strong {
-    flex-basis: 90px;
-  }
-
-  .ticket-card {
-    padding: 1.5rem;
-  }
-
-  .price {
-    font-size: 2.4rem;
+  .grid-asymmetric {
+    grid-template-columns: 1fr;
   }
 }
 </style>
