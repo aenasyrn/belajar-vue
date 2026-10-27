@@ -2,14 +2,15 @@
   <AppCard class="event-card-wrapper">
     <div class="event-body">
       <div class="event-meta">
-        <span class="event-date">{{ event.date }}</span>
+        <div class="meta-left">
+          <span class="event-date">{{ event.date }}</span>
+          <span v-if="isRegistered" class="badge-registered">Registered</span>
+        </div>
         <span class="event-category">{{ event.cat }}</span>
       </div>
-
       <h3 class="event-title">{{ event.title }}</h3>
       <p class="event-loc">{{ event.loc }}</p>
       <p class="event-desc">{{ event.desc }}</p>
-
       <div class="card-footer">
         <button class="btn-link" @click="$emit('view-detail', event.id)">
           View Event Details &rarr;
@@ -27,7 +28,12 @@ defineProps({
     type: Object,
     required: true,
   },
+  isRegistered: {
+    type: Boolean,
+    default: false,
+  },
 })
+
 defineEmits(['view-detail'])
 </script>
 
@@ -36,107 +42,94 @@ defineEmits(['view-detail'])
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-width: 0;
-  background: #ffffff;
-  border: 1px solid #dedfe7;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(28, 25, 72, 0.05);
-  overflow: hidden;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.event-card-wrapper:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 16px rgba(28, 25, 72, 0.1);
 }
 
 .event-body {
-  padding: 1.25rem;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-width: 0;
+  height: 100%;
 }
 
 .event-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-4);
+  gap: var(--space-2);
+}
+
+.meta-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 .event-date {
-  display: inline-block;
-  background: #f0ebff;
-  color: #6644ff;
-  padding: 0.2rem 0.45rem;
-  border-radius: 4px;
+  background: rgba(102, 68, 255, 0.1);
+  color: var(--primary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: 6px;
   font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.badge-registered {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
   font-size: 0.75rem;
-  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .event-category {
-  color: #55556b;
-  font-size: 0.7rem;
-  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
   text-transform: uppercase;
-  text-align: right;
 }
 
 .event-title {
-  color: #1c1948;
-  margin: 0 0 0.75rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
+  margin-bottom: var(--space-2);
+  font-size: 1.4rem;
+  color: var(--text-main);
 }
 
 .event-loc {
-  color: #666780;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  margin: 0 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: var(--space-4);
 }
 
 .event-desc {
-  color: #666780;
-  line-height: 1.55;
-  font-size: 0.85rem;
-  margin: 0 0 1.25rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: var(--space-6);
   flex-grow: 1;
 }
 
 .card-footer {
-  border-top: 1px solid #e0e1e8;
-  padding-top: 0.85rem;
-  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--space-4);
 }
 
 .btn-link {
-  display: inline-block;
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
-  color: #1c1948;
+  color: var(--text-main);
   font-weight: 600;
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 1rem;
   padding: 0;
-  text-align: left;
 }
 
 .btn-link:hover {
-  color: #6644ff;
-}
-
-.btn-link:focus-visible {
-  outline: 2px solid #6644ff;
-  outline-offset: 4px;
-  border-radius: 2px;
+  color: var(--primary);
 }
 </style>
