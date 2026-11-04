@@ -6,6 +6,7 @@ import Breadcrumb from '@/components/app/Breadcrumb.vue'
 <template>
   <div class="app-layout">
     <Navbar />
+
     <main class="main-content">
       <Breadcrumb />
       <router-view />
@@ -19,6 +20,7 @@ import Breadcrumb from '@/components/app/Breadcrumb.vue'
   display: flex;
   flex-direction: column;
 }
+
 .main-content {
   flex: 1;
   padding: 2rem;
